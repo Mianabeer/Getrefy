@@ -1,0 +1,6 @@
+{
+  "name": "Getrefy",
+  "description": "Getrefy — Developer product launch and portfolio community featuring Reddit-style upvoting, comments, badges, leaderboards, and AI launch advisor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
