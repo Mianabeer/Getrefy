@@ -4,10 +4,10 @@ import { PostCard } from './PostCard';
 import { PandaMascot } from './PandaMascot';
 import { CATEGORIES } from '../data/mockData';
 import { Flame, Trophy, Zap, PlusSquare, Filter, ChevronDown, Home as HomeIcon, Check, Layers } from 'lucide-react';
-import { CategoryType, SortOption } from '../types';
+import { CategoryType, SortOption, ProductPost } from '../types';
 
 export const HomeFeed: React.FC = () => {
-  const { posts, filters, setFilters, setActiveView } = useApp();
+  const { posts, filters, setFilters, setActiveView, userProfile } = useApp();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
 
   // Filter posts by category and search query
@@ -30,6 +30,19 @@ export const HomeFeed: React.FC = () => {
       return b.upvotes - a.upvotes;
     }
     if (filters.sortBy === 'newest') {
+      const getPostTime = (p: ProductPost) => {
+        if (typeof p.timestamp === 'number' && p.timestamp > 0) return p.timestamp;
+        if (p.id && p.id.startsWith('post-')) {
+          const parsedMs = Number(p.id.replace('post-', ''));
+          if (!isNaN(parsedMs) && parsedMs > 1000000000) return parsedMs;
+        }
+        return 0;
+      };
+      const timeA = getPostTime(a);
+      const timeB = getPostTime(b);
+      if (timeA !== timeB) {
+        return timeB - timeA;
+      }
       return b.id.localeCompare(a.id);
     }
     // Default trending formula
@@ -143,28 +156,30 @@ export const HomeFeed: React.FC = () => {
           </button>
         )}
       </div>
-      {/* Welcome Banner */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white shadow-md relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1.5 z-10 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-bold">
-            <span>🐼 DEVELOPER PRODUCT SHOWCASE</span>
+      {/* Welcome Banner - Only shown to users with 0 products launched */}
+      {(!userProfile || userProfile.launchedCount === 0) && (
+        <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white shadow-md relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5 z-10 max-w-xl">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-bold">
+              <span>🐼 DEVELOPER PRODUCT SHOWCASE</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
+              Launch Your Software, Get Upvotes & Dev Feedback
+            </h1>
+            <p className="text-xs text-white/80 leading-relaxed">
+              Getrefy is the community where developers showcase their apps, tools, and side projects to thousands of makers.
+            </p>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
-            Launch Your Software, Get Upvotes & Dev Feedback
-          </h1>
-          <p className="text-xs text-white/80 leading-relaxed">
-            Getrefy is the community where developers showcase their apps, tools, and side projects to thousands of makers.
-          </p>
-        </div>
 
-        <button
-          onClick={() => setActiveView('submit')}
-          className="px-4 py-2.5 rounded-xl bg-white text-[#2563EB] font-black text-xs hover:bg-white/90 transition-colors shrink-0 shadow-sm flex items-center gap-2 self-start sm:self-center"
-        >
-          <PlusSquare className="w-4 h-4" />
-          <span>Launch Your App</span>
-        </button>
-      </div>
+          <button
+            onClick={() => setActiveView('submit')}
+            className="px-4 py-2.5 rounded-xl bg-white text-[#2563EB] font-black text-xs hover:bg-white/90 transition-colors shrink-0 shadow-sm flex items-center gap-2 self-start sm:self-center cursor-pointer"
+          >
+            <PlusSquare className="w-4 h-4" />
+            <span>Launch Your App</span>
+          </button>
+        </div>
+      )}
 
       {/* Category Pills Slider */}
       <div className="space-y-2">

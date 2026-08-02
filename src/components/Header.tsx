@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { PandaLogo } from './PandaLogo';
-import { Search, Plus, Sparkles, Moon, Sun, LogIn, LogOut, User, Settings as SettingsIcon } from 'lucide-react';
+import { Search, Plus, Sparkles, Moon, Sun, LogIn, LogOut, User, Settings as SettingsIcon, Bell } from 'lucide-react';
 import { UserAvatar } from './UserAvatar';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export const Header: React.FC<{ onOpenAiAdvisor?: () => void }> = ({ onOpenAiAdvisor }) => {
-  const { filters, setFilters, setActiveView, darkMode, setDarkMode, userProfile, showToast } = useApp();
+  const { filters, setFilters, setActiveView, darkMode, setDarkMode, userProfile, showToast, unreadNotificationCount } = useApp();
   const { user, openAuthModal, signOut } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 bg-[#FFFFFF]/90 dark:bg-[#0E0E10]/90 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#2A2A2C] px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-[#FFFFFF]/90 dark:bg-[#0E0E10]/90 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#2A2A2C] px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4">
       {/* Left: Mobile Logo & Search Bar */}
       <div className="flex items-center gap-4 flex-1 max-w-xl">
         <div className="md:hidden shrink-0 cursor-pointer" onClick={() => setActiveView('home')}>
@@ -45,14 +47,36 @@ export const Header: React.FC<{ onOpenAiAdvisor?: () => void }> = ({ onOpenAiAdv
           <span>Panda Pitch Advisor</span>
         </button>
 
+        {/* Notifications Bell Button */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setIsNotifOpen(!isNotifOpen);
+              setIsDropdownOpen(false);
+            }}
+            className="relative p-2 rounded-xl bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C] text-[#1A1A1B] dark:text-[#F5F5F5] hover:text-[#2563EB] transition-colors cursor-pointer"
+            title="Notifications"
+          >
+            <Bell className="w-4 h-4" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#2563EB] text-[9px] font-black text-white ring-2 ring-white dark:ring-[#0E0E10] animate-pulse">
+                {unreadNotificationCount}
+              </span>
+            )}
+          </button>
+
+          <NotificationDropdown isOpen={isNotifOpen} onClose={() => setIsNotifOpen(false)} />
+        </div>
+
         {/* Dark Mode Toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-xl bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C] text-[#1A1A1B] dark:text-[#F5F5F5] hover:text-[#2563EB] transition-colors"
+          className="p-2 rounded-xl bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C] text-[#1A1A1B] dark:text-[#F5F5F5] hover:text-[#2563EB] transition-colors cursor-pointer"
           title="Toggle Theme"
         >
           {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
         </button>
+
 
         {/* Submit Product CTA */}
         <button

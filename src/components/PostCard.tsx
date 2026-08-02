@@ -12,10 +12,30 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const { upvotePost, setSelectedPost, toggleBookmark, bookmarks, showToast, userProfile } = useApp();
   const isBookmarked = bookmarks.includes(post.id);
 
-  const handleShare = (e: React.MouseEvent) => {
+  const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(post.productUrl || window.location.href);
-    showToast('Link Copied!', 'Product URL copied to clipboard.', 'success');
+    const shareUrl = `${window.location.origin}/?post=${post.id}`;
+    const shareText = `Check out ${post.title} on Getrefy 🐼`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: shareText,
+          url: shareUrl
+        });
+        return;
+      } catch (err) {
+        // Native share dismissed or unsupported, proceed to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      showToast('Link Copied!', `Getrefy link for "${post.title}" copied to clipboard!`, 'success');
+    } catch (err) {
+      showToast('Copy Failed', 'Please copy URL from browser address bar.', 'error');
+    }
   };
 
   const isFeatured = post.isPandaChoice || post.isFeatured;
@@ -24,7 +44,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
     ? userProfile.streakDays
     : (post.maker.streakDays || 0);
 
-  const isLegendMaker = post.maker.badge?.includes('Legend') || post.maker.badge?.includes('Top Maker') || false;
+  const isLegendMaker = post.maker.handle === '@mthorne';
 
   return (
     <article

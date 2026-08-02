@@ -25,6 +25,13 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
   const [commentText, setCommentText] = useState('');
   const [isPrivateFeedback, setIsPrivateFeedback] = useState(false);
 
+  const handleCloseModal = () => {
+    setSelectedPost(null);
+    if (window.location.search.includes('post=')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  };
+
   if (!selectedPost) return null;
 
   const mainImage = selectedPost.imageUrl || (selectedPost.screenshots && selectedPost.screenshots[0]);
@@ -41,9 +48,29 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
     setCommentText('');
   };
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(selectedPost.productUrl);
-    showToast('Link Copied!', 'Product URL copied to clipboard.', 'success');
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/?post=${selectedPost.id}`;
+    const shareText = `Check out ${selectedPost.title} on Getrefy 🐼`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: selectedPost.title,
+          text: shareText,
+          url: shareUrl
+        });
+        return;
+      } catch (err) {
+        // Native share dismissed, proceed to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      showToast('Link Copied!', `Getrefy link for "${selectedPost.title}" copied to clipboard!`, 'success');
+    } catch (err) {
+      showToast('Copy Failed', 'Please copy URL from browser address bar.', 'error');
+    }
   };
 
   return (
@@ -62,7 +89,7 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
           </div>
 
           <button
-            onClick={() => setSelectedPost(null)}
+            onClick={handleCloseModal}
             className="p-1.5 rounded-xl text-[#1A1A1B]/50 hover:text-[#1A1A1B] dark:text-[#F5F5F5]/50 dark:hover:text-[#F5F5F5] hover:bg-[#E5E5E5] dark:hover:bg-[#2A2A2C] transition-colors"
           >
             <X className="w-5 h-5" />
@@ -279,37 +306,49 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
 
             {/* List of Comments */}
             <div className="space-y-3 pt-2">
-              {(!selectedPost.comments || selectedPost.comments.length === 0) ? (
-                <div className="py-6 text-center">
-                  <PandaMascot
-                    mood="idle"
-                    size="md"
-                    title="No Comments Yet"
-                    subtitle="Be the first developer to leave feedback, ask technical questions, or give launch advice!"
-                  />
-                </div>
-              ) : (
-                (() => {
-                  const maxUpvotes = Math.max(...selectedPost.comments.map(c => c.upvotes || 0));
+              {(() => {
+                const isPostOwner = selectedPost.maker.handle === userProfile?.handle || selectedPost.maker.name === userProfile?.name || selectedPost.maker.name?.includes('You');
 
-                  return selectedPost.comments.map((comment) => {
-                    const isTopComment = maxUpvotes > 0 && comment.upvotes === maxUpvotes;
-                    const isCurrentUser = comment.authorName?.includes('You') || comment.authorName === userProfile?.name;
-                    const authorPoints = isCurrentUser ? userProfile.points : 120;
-                    const authorStreak = isCurrentUser ? userProfile.streakDays : 4;
-                    const authorTier = getBadgeTier(authorPoints);
+                const visibleComments = (selectedPost.comments || []).filter(comment => {
+                  if (!comment.isPrivate) return true;
+                  const isCommentAuthor = comment.authorHandle === userProfile?.handle || comment.authorName === userProfile?.name || comment.authorName?.includes('You');
+                  return isCommentAuthor || isPostOwner;
+                });
 
-                    return (
-                      <div
-                        key={comment.id}
-                        className={`p-3.5 rounded-xl border relative transition-all ${
-                          comment.isPrivate
-                            ? 'bg-purple-500/5 dark:bg-purple-900/10 border-purple-500/20'
-                            : isTopComment
-                            ? 'bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/30 shadow-2xs'
-                            : 'bg-white dark:bg-[#0E0E10] border-[#E5E5E5] dark:border-[#2A2A2C]'
-                        } space-y-2`}
-                      >
+                if (visibleComments.length === 0) {
+                  return (
+                    <div className="py-6 text-center">
+                      <PandaMascot
+                        mood="idle"
+                        size="md"
+                        title="No Public Comments Yet"
+                        subtitle="Be the first developer to leave feedback, ask technical questions, or give launch advice!"
+                      />
+                    </div>
+                  );
+                }
+
+                const maxUpvotes = Math.max(...visibleComments.map(c => c.upvotes || 0));
+
+                return visibleComments.map((comment) => {
+                  const isTopComment = maxUpvotes > 0 && comment.upvotes === maxUpvotes;
+                  const isCurrentUser = comment.authorName?.includes('You') || comment.authorName === userProfile?.name;
+                  const authorPoints = isCurrentUser ? userProfile.points : 120;
+                  const authorStreak = isCurrentUser ? userProfile.streakDays : 4;
+                  const authorTier = getBadgeTier(authorPoints);
+
+                  return (
+                    <div
+                      key={comment.id}
+                      className={`p-3.5 rounded-xl border relative transition-all ${
+                        comment.isPrivate
+                          ? 'bg-purple-500/5 dark:bg-purple-900/10 border-purple-500/20'
+                          : isTopComment
+                          ? 'bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/30 shadow-2xs'
+                          : 'bg-white dark:bg-[#0E0E10] border-[#E5E5E5] dark:border-[#2A2A2C]'
+                      } space-y-2`}
+                    >
+
                         <div className="flex items-center justify-between text-xs flex-wrap gap-2">
                           <div className="flex items-center gap-2 flex-wrap">
                             <UserAvatar
@@ -394,9 +433,9 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
                       </div>
                     );
                   });
-                })()
-              )}
+                })()}
             </div>
+
           </div>
         </div>
       </div>

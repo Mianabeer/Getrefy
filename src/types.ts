@@ -48,11 +48,13 @@ export interface ProductPost {
   userUpvoted?: boolean;
   commentCount: number;
   createdAt: string;
+  timestamp?: number;
   points: number;
   screenshots?: string[];
   comments?: Comment[];
   isPandaChoice?: boolean;
   isFeatured?: boolean;
+  userId?: string;
 }
 
 export interface Badge {
@@ -89,4 +91,19 @@ export interface ToastMessage {
   title: string;
   message: string;
   type?: 'success' | 'info' | 'panda' | 'error';
+}
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: 'post_upvote' | 'comment_upvote' | 'post_comment' | 'comment_reply' | 'mention';
+  message: string;
+  relatedPostId?: string;
+  relatedCommentId?: string;
+  isRead: boolean;
+  createdAt: string;
+  timestamp: number;
+  actorName?: string;
+  actorAvatar?: string;
+  actorHandle?: string;
 }

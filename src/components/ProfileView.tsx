@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { TOP_MAKERS } from '../data/mockData';
-import { Flame, Award, ArrowUp, Rocket, ShieldCheck, PlusSquare, MessageSquare, FileText, Edit3, Loader2, LogIn } from 'lucide-react';
+import { Flame, Award, ArrowUp, Rocket, ShieldCheck, PlusSquare, MessageSquare, FileText, Edit3, Loader2, LogIn, Trophy, Star } from 'lucide-react';
 import { PostCard } from './PostCard';
-import { UserAvatar, getBadgeTier } from './UserAvatar';
+import { UserAvatar, getBadgeTier, getNextTierProgress } from './UserAvatar';
 import { PandaMascot } from './PandaMascot';
 
 export const ProfileView: React.FC = () => {
   const { userProfile, posts, setActiveView } = useApp();
   const { user, loading: authLoading, openAuthModal } = useAuth();
   const [activeTab, setActiveTab] = useState<'posts' | 'comments'>('posts');
+
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -154,41 +155,189 @@ export const ProfileView: React.FC = () => {
             </span>
           </div>
         </div>
-      </div>
 
-      {/* Earned Badges Grid */}
-      <div className="bg-white dark:bg-[#0E0E10] border border-[#E5E5E5] dark:border-[#2A2A2C] rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-bold text-[#1A1A1B] dark:text-[#F5F5F5] flex items-center gap-2">
-          <Award className="w-4 h-4 text-[#2563EB]" />
-          <span>Earned Creator Badges ({userProfile.badges.length})</span>
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {userProfile.badges.map((badge) => (
-            <div
-              key={badge.id}
-              className="p-3.5 rounded-xl bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C] flex items-center gap-3"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[#2563EB]/10 text-xl flex items-center justify-center shrink-0">
-                {badge.icon}
-              </div>
-              <div className="min-w-0">
-                <h4 className="font-bold text-xs text-[#1A1A1B] dark:text-[#F5F5F5]">
-                  {badge.name}
-                </h4>
-                <p className="text-[10px] text-[#1A1A1B]/60 dark:text-[#F5F5F5]/60 line-clamp-1">
-                  {badge.description}
-                </p>
-                {badge.dateEarned && (
-                  <span className="text-[9px] text-[#2563EB] font-semibold mt-0.5 block">
-                    Earned {badge.dateEarned}
+        {/* Tier Progress Bar Card */}
+        {(() => {
+          const progress = getNextTierProgress(userProfile.points);
+          return (
+            <div className="p-4 rounded-xl bg-white dark:bg-[#0E0E10] border border-[#E5E5E5] dark:border-[#2A2A2C] space-y-2 mt-4">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-[#1A1A1B] dark:text-[#F5F5F5] flex items-center gap-1.5">
+                  <span>Current Status:</span>
+                  <span className="px-2 py-0.5 rounded bg-[#2563EB]/10 text-[#2563EB] text-[11px] font-black">
+                    {tier.label}
                   </span>
-                )}
+                </span>
+                <span className="text-[#2563EB]">
+                  {progress.pointsNeeded > 0
+                    ? `${progress.pointsNeeded} pts to ${progress.nextTier}`
+                    : 'Max Tier Unlocked!'}
+                </span>
+              </div>
+
+              {/* Progress Track */}
+              <div className="w-full bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C] h-3 rounded-full overflow-hidden p-0.5">
+                <div
+                  className="bg-gradient-to-r from-[#2563EB] via-indigo-500 to-purple-500 h-full rounded-full transition-all duration-500"
+                  style={{ width: `${progress.percentage}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] font-semibold text-[#1A1A1B]/50 dark:text-[#F5F5F5]/50">
+                <span>{userProfile.points} Panda Points</span>
+                <span>{progress.percentage}% towards {progress.nextTier}</span>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })()}
       </div>
+
+
+      {/* Earned Creator Badges Grid */}
+      {(() => {
+        const allBadgesList = [
+          {
+            id: 'b1',
+            name: 'First Launch',
+            description: 'Published your first product on Getrefy',
+            icon: Rocket,
+            unlocked: userProfile.launchedCount >= 1 || userProfile.badges.some(b => b.name === 'First Launch'),
+            dateEarned: 'Aug 2026'
+          },
+          {
+            id: 'b2',
+            name: '7-Day Streak',
+            description: 'Active on Getrefy for 7 consecutive days',
+            icon: Flame,
+            unlocked: userProfile.streakDays >= 7 || userProfile.badges.some(b => b.name === '7-Day Streak'),
+            dateEarned: 'Aug 2026'
+          },
+          {
+            id: 'b3',
+            name: 'Top 10 Maker',
+            description: 'Reached top 10 on the weekly launch leaderboard',
+            icon: Trophy,
+            unlocked: userProfile.points >= 500 || userProfile.badges.some(b => b.name === 'Top 10 Maker'),
+            dateEarned: 'Aug 2026'
+          },
+          {
+            id: 'b4',
+            name: 'Community Supporter',
+            description: 'Left constructive feedback comments on products',
+            icon: MessageSquare,
+            unlocked: userComments.length >= 2 || userProfile.badges.some(b => b.name === 'Community Supporter'),
+            dateEarned: 'Aug 2026'
+          },
+          {
+            id: 'b5',
+            name: 'Panda Verified',
+            description: 'Verified developer creator profile',
+            icon: ShieldCheck,
+            unlocked: true,
+            dateEarned: 'Aug 2026'
+          },
+          {
+            id: 'b6',
+            name: 'Rising Star',
+            description: 'First product to reach 50+ community upvotes',
+            icon: Star,
+            unlocked: userPosts.some(p => p.upvotes >= 50) || userProfile.totalUpvotesReceived >= 50,
+            dateEarned: userPosts.some(p => p.upvotes >= 50) ? 'Recently' : undefined
+          },
+          {
+            id: 'b7',
+            name: 'Conversation Starter',
+            description: 'Left a feedback comment that received 10+ upvotes/replies',
+            icon: MessageSquare,
+            unlocked: userComments.some(c => c.upvotes >= 10),
+            dateEarned: userComments.some(c => c.upvotes >= 10) ? 'Recently' : undefined
+          },
+          {
+            id: 'b8',
+            name: 'Helpful Hand',
+            description: 'Left feedback on 25+ different launched products',
+            icon: ShieldCheck,
+            unlocked: userComments.length >= 25,
+            dateEarned: userComments.length >= 25 ? 'Recently' : undefined
+          },
+          {
+            id: 'b9',
+            name: 'Consistent Creator',
+            description: 'Successfully launched 3+ software products',
+            icon: PlusSquare,
+            unlocked: userProfile.launchedCount >= 3,
+            dateEarned: userProfile.launchedCount >= 3 ? 'Recently' : undefined
+          },
+          {
+            id: 'b10',
+            name: '30-Day Streak',
+            description: 'Maintained active 30-day continuous daily streak',
+            icon: Flame,
+            unlocked: userProfile.streakDays >= 30,
+            dateEarned: userProfile.streakDays >= 30 ? 'Recently' : undefined
+          }
+        ];
+
+        const unlockedCount = allBadgesList.filter(b => b.unlocked).length;
+
+        return (
+          <div className="bg-white dark:bg-[#0E0E10] border border-[#E5E5E5] dark:border-[#2A2A2C] rounded-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-[#1A1A1B] dark:text-[#F5F5F5] flex items-center gap-2">
+                <Award className="w-4 h-4 text-[#2563EB]" />
+                <span>Earned Creator Badges ({unlockedCount}/{allBadgesList.length})</span>
+              </h3>
+              <span className="text-[11px] text-[#2563EB] font-bold">
+                {Math.round((unlockedCount / allBadgesList.length) * 100)}% Unlocked
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {allBadgesList.map((badge) => {
+                const IconComp = badge.icon;
+                return (
+                  <div
+                    key={badge.id}
+                    className={`p-3.5 rounded-xl border flex items-center gap-3 transition-all ${
+                      badge.unlocked
+                        ? 'bg-[#F6F7F8] dark:bg-[#1A1A1B] border-[#2563EB]/30'
+                        : 'bg-black/5 dark:bg-white/5 border-transparent opacity-50 grayscale'
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      badge.unlocked
+                        ? 'bg-[#2563EB]/10 text-[#2563EB]'
+                        : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
+                    }`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <h4 className="font-bold text-xs text-[#1A1A1B] dark:text-[#F5F5F5] truncate">
+                          {badge.name}
+                        </h4>
+                        {!badge.unlocked && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-800 text-gray-500 font-bold uppercase">
+                            Locked
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-[#1A1A1B]/60 dark:text-[#F5F5F5]/60 line-clamp-2 mt-0.5">
+                        {badge.description}
+                      </p>
+                      {badge.unlocked && badge.dateEarned && (
+                        <span className="text-[9px] text-[#2563EB] font-semibold mt-1 block">
+                          Earned {badge.dateEarned}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Posts & Comments Navigation Tabs */}
       <div className="space-y-4">

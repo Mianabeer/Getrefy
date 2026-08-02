@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp, ActiveView } from '../context/AppContext';
-import { Home, PlusSquare, Trophy, User, Settings } from 'lucide-react';
+import { Home, PlusSquare, Trophy, User, Sparkles } from 'lucide-react';
 
 export const MobileBottomNav: React.FC = () => {
   const { activeView, setActiveView } = useApp();
@@ -9,8 +9,8 @@ export const MobileBottomNav: React.FC = () => {
     { id: 'home', label: 'Home', icon: Home },
     { id: 'leaderboard', label: 'Top', icon: Trophy },
     { id: 'submit', label: 'Submit', icon: PlusSquare },
+    { id: 'why', label: 'Why Us', icon: Sparkles },
     { id: 'profile', label: 'Profile', icon: User },
-    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (

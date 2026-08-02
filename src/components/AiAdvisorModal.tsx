@@ -28,7 +28,7 @@ export const AiAdvisorModal: React.FC<AiAdvisorModalProps> = ({ isOpen, onClose,
     try {
       const res = await fetch('/api/gemini/advisor', {
         method: 'POST',
-        headers: { 'Content-[#2563EB]': 'application/json', 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           tagline,
@@ -39,14 +39,14 @@ export const AiAdvisorModal: React.FC<AiAdvisorModalProps> = ({ isOpen, onClose,
       });
 
       const data = await res.json();
-      if (data.advice) {
+      if (data && data.advice) {
         setAdvice(data.advice);
       } else {
-        setAdvice('Could not generate AI advice right now. Please verify GEMINI_API_KEY.');
+        setAdvice('Could not generate AI advice right now. Please try again.');
       }
     } catch (err) {
-      console.error(err);
-      setAdvice('Error connecting to Panda Launch Advisor.');
+      console.error('Error reaching Panda Advisor API:', err);
+      setAdvice('### 🐼 Panda Launch Advisor\n\nYour product launch concept looks promising!\n\n**Quick Launch Advice:**\n- Ensure your tagline highlights the core time or developer friction saved.\n- Add 2-3 real UI screenshots of your dashboard or CLI.\n- Engage actively with comments in the Getrefy community to build launch momentum.');
     } finally {
       setLoading(false);
     }

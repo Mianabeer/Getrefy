@@ -12,96 +12,109 @@ export interface UserAvatarProps {
 }
 
 export function getBadgeTier(points: number = 0, isRank1: boolean = false) {
-  // Dynamic #1 ranked user is the LEGEND
-  if (isRank1) {
+  // Legendary: 4000+ points OR #1 ranked user fallback if nobody has hit 4000 points yet
+  if (points >= 4000 || isRank1) {
     return {
-      name: 'Legend',
-      label: 'Legend 👑',
-      emoji: '👑',
-      color: '#EF4444',
-      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-rose-600 via-red-500 to-amber-500 animate-pulse shadow-lg shadow-red-500/60 ring-2 ring-red-500/50',
-      badgeClass: 'bg-gradient-to-r from-rose-600 via-red-500 to-amber-500 text-white font-black shadow-sm',
-      borderHex: '#EF4444',
+      name: 'Legendary',
+      label: 'Legendary Tier',
+      iconName: 'Crown',
+      color: '#DC2626',
+      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-red-700 via-rose-600 to-amber-500 animate-pulse shadow-lg shadow-red-600/60 ring-2 ring-red-500/50',
+      badgeClass: 'bg-gradient-to-r from-red-700 via-rose-600 to-amber-500 text-white font-black shadow-sm',
+      borderHex: '#DC2626',
       isLegend: true
     };
   }
 
-  if (points >= 7500) {
-    return {
-      name: 'Apex',
-      label: 'Apex ⚡',
-      emoji: '⚡',
-      color: '#F97316',
-      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 shadow-lg shadow-orange-500/50 ring-2 ring-orange-400/50',
-      badgeClass: 'bg-gradient-to-r from-orange-500 to-red-600 text-white font-black',
-      borderHex: '#F97316'
-    };
-  }
-  if (points >= 5000) {
-    return {
-      name: 'Trendsetter',
-      label: 'Trendsetter 🌿',
-      emoji: '🌿',
-      color: '#10B981',
-      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-teal-500 via-emerald-400 to-green-300 shadow-md shadow-teal-500/40 ring-2 ring-teal-400/40',
-      badgeClass: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold',
-      borderHex: '#10B981'
-    };
-  }
-  if (points >= 3000) {
+  if (points >= 2500) {
     return {
       name: 'Diamond',
-      label: 'Diamond 🧊',
-      emoji: '🧊',
+      label: 'Diamond Tier',
+      iconName: 'Gem',
       color: '#38BDF8',
-      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-sky-400 via-indigo-300 to-white shadow-md shadow-sky-400/40 ring-2 ring-sky-300/50',
-      badgeClass: 'bg-gradient-to-r from-sky-400 via-indigo-400 to-blue-500 text-white font-bold',
+      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-sky-400 via-cyan-200 to-white shadow-md shadow-sky-400/40 ring-2 ring-sky-300/50',
+      badgeClass: 'bg-gradient-to-r from-sky-400 via-indigo-400 to-cyan-300 text-white font-bold',
       borderHex: '#38BDF8'
     };
   }
   if (points >= 1500) {
     return {
       name: 'Platinum',
-      label: 'Platinum 💎',
-      emoji: '💎',
+      label: 'Platinum Tier',
+      iconName: 'ShieldCheck',
       color: '#A855F7',
-      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-purple-600 via-[#2563EB] to-cyan-400 animate-pulse shadow-md shadow-purple-500/40 ring-2 ring-purple-500/30',
-      badgeClass: 'bg-gradient-to-r from-purple-600 to-[#2563EB] text-white font-bold',
+      ringClass: 'p-[3px] rounded-full bg-gradient-to-r from-purple-600 via-indigo-500 to-cyan-400 shadow-md shadow-purple-500/40 ring-2 ring-purple-400/30',
+      badgeClass: 'bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-bold',
       borderHex: '#A855F7'
     };
   }
-  if (points >= 500) {
+  if (points >= 800) {
     return {
       name: 'Gold',
-      label: 'Gold 🥇',
-      emoji: '🥇',
+      label: 'Gold Tier',
+      iconName: 'Trophy',
       color: '#FFD700',
       ringClass: 'p-[3px] rounded-full bg-[#FFD700] shadow-md shadow-yellow-500/30 ring-2 ring-yellow-400/30',
       badgeClass: 'bg-[#FFD700] text-black font-black',
       borderHex: '#FFD700'
     };
   }
-  if (points >= 100) {
+  if (points >= 300) {
     return {
       name: 'Silver',
-      label: 'Silver 🥈',
-      emoji: '🥈',
+      label: 'Silver Tier',
+      iconName: 'Award',
       color: '#C0C0C0',
       ringClass: 'p-[3px] rounded-full bg-gradient-to-tr from-slate-400 via-gray-300 to-slate-200 shadow-sm ring-2 ring-slate-300/40',
-      badgeClass: 'bg-[#C0C0C0] text-black font-bold',
+      badgeClass: 'bg-gradient-to-r from-slate-400 via-gray-300 to-slate-300 text-black font-bold',
       borderHex: '#C0C0C0'
     };
   }
   return {
     name: 'Bronze',
-    label: 'Bronze 🥉',
-    emoji: '🥉',
+    label: 'Bronze Tier',
+    iconName: 'Star',
     color: '#A97142',
     ringClass: 'p-[3px] rounded-full bg-[#A97142] shadow-sm ring-2 ring-[#A97142]/30',
     badgeClass: 'bg-[#A97142] text-white font-bold',
     borderHex: '#A97142'
   };
 }
+
+export function getNextTierProgress(points: number = 0) {
+  const tiers = [
+    { name: 'Bronze', min: 0, max: 300, next: 'Silver Tier' },
+    { name: 'Silver', min: 300, max: 800, next: 'Gold Tier' },
+    { name: 'Gold', min: 800, max: 1500, next: 'Platinum Tier' },
+    { name: 'Platinum', min: 1500, max: 2500, next: 'Diamond Tier' },
+    { name: 'Diamond', min: 2500, max: 4000, next: 'Legendary Tier 👑' }
+  ];
+
+  for (const t of tiers) {
+    if (points < t.max) {
+      const needed = t.max - points;
+      const range = t.max - t.min;
+      const currentInTier = points - t.min;
+      const percentage = Math.min(100, Math.max(0, Math.round((currentInTier / range) * 100)));
+      return {
+        currentTier: t.name,
+        nextTier: t.next,
+        nextThreshold: t.max,
+        pointsNeeded: needed,
+        percentage
+      };
+    }
+  }
+
+  return {
+    currentTier: 'Legendary',
+    nextTier: 'Top Ranked Legendary 👑',
+    nextThreshold: points,
+    pointsNeeded: 0,
+    percentage: 100
+  };
+}
+
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({
   src,

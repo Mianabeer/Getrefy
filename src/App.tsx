@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { AppProvider, useApp } from './context/AppContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { HomeFeed } from './components/HomeFeed';
@@ -8,6 +9,8 @@ import { SubmitProductView } from './components/SubmitProductView';
 import { LeaderboardView } from './components/LeaderboardView';
 import { ProfileView } from './components/ProfileView';
 import { SettingsView } from './components/SettingsView';
+import { WhyGetrefyView } from './components/WhyGetrefyView';
+import { NotificationsView } from './components/NotificationsView';
 import { PostDetailModal } from './components/PostDetailModal';
 import { AiAdvisorModal } from './components/AiAdvisorModal';
 import { AuthModal } from './components/AuthModal';
@@ -39,6 +42,8 @@ const MainLayout: React.FC = () => {
           {activeView === 'leaderboard' && <LeaderboardView />}
           {activeView === 'profile' && <ProfileView />}
           {activeView === 'settings' && <SettingsView />}
+          {activeView === 'why' && <WhyGetrefyView />}
+          {activeView === 'notifications' && <NotificationsView />}
         </main>
       </div>
 
@@ -58,11 +63,13 @@ const MainLayout: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <MainLayout />
-      </AppProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppProvider>
+          <MainLayout />
+        </AppProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -44,9 +44,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const defaultName = currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Developer Creator';
     const defaultHandle = currentUser.user_metadata?.handle || generateRandomHandle(defaultName);
 
+    // Read local cache backup for this user ID
+    let localProf: UserProfile | null = null;
+    const localSaved = localStorage.getItem(`getrefy_user_profile_${currentUser.id}`);
+    if (localSaved) {
+      try { localProf = JSON.parse(localSaved); } catch (e) { console.error(e); }
+    }
+
     if (!isSupabaseConfigured) {
       // Fallback profile if Supabase environment variables aren't provided yet
-      const fallback: UserProfile = {
+      const fallback: UserProfile = localProf || {
         name: defaultName,
         handle: defaultHandle,
         avatar: currentUser.user_metadata?.avatar || currentUser.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
@@ -70,23 +77,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (data && !error) {
+        const bestPoints = Math.max(data.points ?? 0, localProf?.points ?? 0);
+        const bestStreak = Math.max(data.streak_days ?? 0, localProf?.streakDays ?? 0);
+        const bestLaunched = Math.max(data.launched_count ?? 0, localProf?.launchedCount ?? 0);
+        const bestUpvotes = Math.max(data.total_upvotes_received ?? 0, localProf?.totalUpvotesReceived ?? 0);
+
         const fetchedProfile: UserProfile = {
-          name: data.name || defaultName,
-          handle: data.handle || defaultHandle,
-          avatar: data.avatar || currentUser.user_metadata?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-          bio: data.bio || 'Indie software creator on Getrefy',
-          role: data.role || 'Developer Creator',
-          points: data.points ?? 0,
-          streakDays: data.streak_days ?? 0,
+          name: data.name || localProf?.name || defaultName,
+          handle: data.handle || localProf?.handle || defaultHandle,
+          avatar: data.avatar || localProf?.avatar || currentUser.user_metadata?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+          bio: data.bio || localProf?.bio || 'Indie software creator on Getrefy',
+          role: data.role || localProf?.role || 'Developer Creator',
+          points: bestPoints,
+          streakDays: bestStreak,
           badges: BADGES,
-          launchedCount: data.launched_count ?? 0,
-          totalUpvotesReceived: data.total_upvotes_received ?? 0
+          launchedCount: bestLaunched,
+          totalUpvotesReceived: bestUpvotes
         };
+
         setProfile(fetchedProfile);
+        localStorage.setItem(`getrefy_user_profile_${currentUser.id}`, JSON.stringify(fetchedProfile));
+
+        // Sync back to Supabase if local points were higher
+        if (bestPoints > (data.points ?? 0) || bestStreak > (data.streak_days ?? 0)) {
+          await supabase.from('users').upsert({
+            id: currentUser.id,
+            email: currentUser.email || '',
+            name: fetchedProfile.name,
+            handle: fetchedProfile.handle,
+            avatar: fetchedProfile.avatar,
+            bio: fetchedProfile.bio,
+            role: fetchedProfile.role,
+            points: bestPoints,
+            streak_days: bestStreak,
+            launched_count: bestLaunched,
+            total_upvotes_received: bestUpvotes
+          });
+        }
+
         return fetchedProfile;
       } else {
         // Construct initial profile if row doesn't exist in users table yet
-        const newProfile: UserProfile = {
+        const newProfile: UserProfile = localProf || {
           name: defaultName,
           handle: defaultHandle,
           avatar: currentUser.user_metadata?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
@@ -99,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           totalUpvotesReceived: 0
         };
         setProfile(newProfile);
+        localStorage.setItem(`getrefy_user_profile_${currentUser.id}`, JSON.stringify(newProfile));
 
         // Explicitly upsert profile row into Supabase users table
         await supabase.from('users').upsert({
@@ -109,17 +142,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar: newProfile.avatar,
           bio: newProfile.bio,
           role: newProfile.role,
-          points: 0,
-          streak_days: 0,
-          launched_count: 0,
-          total_upvotes_received: 0
+          points: newProfile.points,
+          streak_days: newProfile.streakDays,
+          launched_count: newProfile.launchedCount,
+          total_upvotes_received: newProfile.totalUpvotesReceived
         });
 
         return newProfile;
       }
     } catch (err) {
       console.error('Error fetching profile from Supabase:', err);
-      const fallbackProfile: UserProfile = {
+      const fallbackProfile: UserProfile = localProf || {
         name: defaultName,
         handle: defaultHandle,
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
@@ -294,18 +327,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProfileInSupabase = async (updated: Partial<UserProfile>) => {
     if (profile) {
       const newProf = { ...profile, ...updated };
-      setProfile(newProf);
+      
+      const isUnchanged =
+        profile.points === newProf.points &&
+        profile.streakDays === newProf.streakDays &&
+        profile.launchedCount === newProf.launchedCount &&
+        profile.totalUpvotesReceived === newProf.totalUpvotesReceived &&
+        profile.name === newProf.name &&
+        profile.bio === newProf.bio &&
+        profile.role === newProf.role &&
+        profile.avatar === newProf.avatar;
+
+      if (!isUnchanged) {
+        setProfile(newProf);
+      }
+
+      if (user) {
+        localStorage.setItem(`getrefy_user_profile_${user.id}`, JSON.stringify(newProf));
+      }
 
       if (user && isSupabaseConfigured) {
-        await supabase.from('users').upsert({
-          id: user.id,
-          name: newProf.name,
-          handle: newProf.handle,
-          avatar: newProf.avatar,
-          bio: newProf.bio,
-          role: newProf.role,
-          points: newProf.points
-        });
+        try {
+          await supabase.from('users').upsert({
+            id: user.id,
+            email: user.email || '',
+            name: newProf.name,
+            handle: newProf.handle,
+            avatar: newProf.avatar,
+            bio: newProf.bio,
+            role: newProf.role,
+            points: newProf.points,
+            streak_days: newProf.streakDays,
+            launched_count: newProf.launchedCount,
+            total_upvotes_received: newProf.totalUpvotesReceived
+          });
+        } catch (err) {
+          console.warn('Failed to update profile in Supabase:', err);
+        }
       }
     }
   };
