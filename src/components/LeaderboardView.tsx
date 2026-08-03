@@ -4,14 +4,14 @@ import { TOP_MAKERS } from '../data/mockData';
 import { Trophy, Flame, Award, ArrowUp, ShieldCheck, Sparkles, Clock, Globe, Crown, Gem, Star, Users } from 'lucide-react';
 import { UserAvatar, getBadgeTier } from './UserAvatar';
 
-type TierFilter = 'All' | 'Legendary' | 'Diamond' | 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
+type TierFilter = 'All' | 'Legendary' | 'Diamond' | 'Platinum' | 'Gold';
 
 export const LeaderboardView: React.FC = () => {
   const { posts, setSelectedPost, userProfile } = useApp();
   const [timeframe, setTimeframe] = useState<'weekly' | 'alltime'>('weekly');
   const [selectedTier, setSelectedTier] = useState<TierFilter>('All');
 
-  // Dynamically include user and sort top makers by points
+  // Dynamically include current user and sort top makers by points
   const sortedMakers = [...TOP_MAKERS];
   if (userProfile && !sortedMakers.some(m => m.handle === userProfile.handle)) {
     sortedMakers.push({
@@ -26,17 +26,28 @@ export const LeaderboardView: React.FC = () => {
   }
   sortedMakers.sort((a, b) => b.points - a.points);
 
-  // Filter makers by tier tab
-  const filteredMakers = sortedMakers.filter((maker) => {
-    if (selectedTier === 'All') return true;
-    const overallIndex = sortedMakers.findIndex(m => m.handle === maker.handle);
-    const makerTier = getBadgeTier(maker.points, overallIndex === 0);
-    return makerTier.name === selectedTier;
-  });
+  // Filter makers by tier tab:
+  // - "All" tab shows Gold+ tier makers only (points >= 800 or rank #1), limited to Top 10
+  // - Tier tabs (Legendary, Diamond, Platinum, Gold) show makers in that exact tier, limited to Top 10
+  const filteredMakers = sortedMakers
+    .filter((maker) => {
+      const overallIndex = sortedMakers.findIndex(m => m.handle === maker.handle);
+      const isRank1 = overallIndex === 0;
+      const makerTier = getBadgeTier(maker.points, isRank1);
 
-  // Calculate count per tier
+      if (selectedTier === 'All') {
+        // Only Gold, Platinum, Diamond, or Legendary (points >= 800 or rank #1)
+        return maker.points >= 800 || isRank1;
+      }
+      return makerTier.name === selectedTier;
+    })
+    .slice(0, 10);
+
+  // Calculate count per tier for badges
   const getTierCount = (tierName: TierFilter) => {
-    if (tierName === 'All') return sortedMakers.length;
+    if (tierName === 'All') {
+      return sortedMakers.filter((m, idx) => m.points >= 800 || idx === 0).length;
+    }
     return sortedMakers.filter((m) => {
       const idx = sortedMakers.findIndex(x => x.handle === m.handle);
       return getBadgeTier(m.points, idx === 0).name === tierName;
@@ -57,13 +68,11 @@ export const LeaderboardView: React.FC = () => {
     .sort((a, b) => (b.upvotes + b.commentCount) - (a.upvotes + a.commentCount))[0];
 
   const TIER_TABS: { id: TierFilter; label: string; minPoints: string; color: string; activeClass: string; icon: any }[] = [
-    { id: 'All', label: 'All', minPoints: 'Everyone', color: 'text-[#2563EB]', activeClass: 'bg-[#2563EB] text-white shadow-xs', icon: Users },
-    { id: 'Legendary', label: 'Legendary', minPoints: '4000+', color: 'text-red-500', activeClass: 'bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 text-white shadow-xs animate-pulse font-black', icon: Crown },
-    { id: 'Diamond', label: 'Diamond', minPoints: '2500–3999', color: 'text-sky-400', activeClass: 'bg-gradient-to-r from-sky-400 via-indigo-400 to-cyan-300 text-white shadow-xs font-bold', icon: Gem },
-    { id: 'Platinum', label: 'Platinum', minPoints: '1500–2499', color: 'text-purple-500', activeClass: 'bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-xs font-bold', icon: ShieldCheck },
-    { id: 'Gold', label: 'Gold', minPoints: '800–1499', color: 'text-amber-500', activeClass: 'bg-[#FFD700] text-black font-extrabold shadow-xs', icon: Trophy },
-    { id: 'Silver', label: 'Silver', minPoints: '300–799', color: 'text-slate-400', activeClass: 'bg-gradient-to-r from-slate-400 via-gray-300 to-slate-200 text-black font-extrabold shadow-xs', icon: Award },
-    { id: 'Bronze', label: 'Bronze', minPoints: '0–299', color: 'text-[#A97142]', activeClass: 'bg-[#A97142] text-white shadow-xs font-bold', icon: Star }
+    { id: 'All', label: 'All (Gold+ Top 10)', minPoints: '800+ pts', color: 'text-[#2563EB]', activeClass: 'bg-[#2563EB] text-white shadow-xs font-bold', icon: Users },
+    { id: 'Legendary', label: 'Legendary', minPoints: '4000+ pts', color: 'text-red-500', activeClass: 'bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 text-white shadow-xs animate-pulse font-black', icon: Crown },
+    { id: 'Diamond', label: 'Diamond', minPoints: '2500–3999 pts', color: 'text-sky-400', activeClass: 'bg-gradient-to-r from-sky-400 via-indigo-400 to-cyan-300 text-white shadow-xs font-bold', icon: Gem },
+    { id: 'Platinum', label: 'Platinum', minPoints: '1500–2499 pts', color: 'text-purple-500', activeClass: 'bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-xs font-bold', icon: ShieldCheck },
+    { id: 'Gold', label: 'Gold', minPoints: '800–1499 pts', color: 'text-amber-500', activeClass: 'bg-[#FFD700] text-black font-extrabold shadow-xs', icon: Trophy }
   ];
 
   return (
@@ -116,11 +125,11 @@ export const LeaderboardView: React.FC = () => {
         {mostUpvotedProduct && (
           <div
             onClick={() => setSelectedPost(mostUpvotedProduct)}
-            className="p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 hover:border-amber-500 cursor-pointer transition-all space-y-3 group shadow-xs"
+            className="p-5 rounded-2xl bg-gradient-to-br from-[#2563EB]/10 via-[#2563EB]/5 to-transparent border border-[#2563EB]/30 hover:border-[#2563EB] cursor-pointer transition-all space-y-3 group shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                <Crown className="w-3 h-3 fill-amber-500 text-amber-500" />
+              <span className="px-2.5 py-1 rounded-lg bg-[#2563EB]/15 text-[#2563EB] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <Crown className="w-3 h-3 fill-[#2563EB] text-[#2563EB]" />
                 <span>Most Upvoted Product All-Time</span>
               </span>
               <div className="flex items-center gap-1 text-xs font-black text-[#2563EB]">
@@ -133,7 +142,7 @@ export const LeaderboardView: React.FC = () => {
               <img
                 src={mostUpvotedProduct.logoUrl}
                 alt={mostUpvotedProduct.title}
-                className="w-10 h-10 rounded-xl object-cover border border-amber-500/30"
+                className="w-10 h-10 rounded-xl object-cover border border-[#2563EB]/30"
               />
               <div className="min-w-0 flex-1">
                 <h3 className="text-xs font-extrabold text-[#1A1A1B] dark:text-[#F5F5F5] group-hover:text-[#2563EB] transition-colors truncate">
@@ -311,19 +320,19 @@ export const LeaderboardView: React.FC = () => {
                   const isRank3 = overallRankIndex === 2;
                   const tier = getBadgeTier(maker.points, isRank1);
 
-                  let highlightStyle = 'bg-[#F6F7F8] dark:bg-[#1A1A1B] border-[#E5E5E5] dark:border-[#2A2A2C]';
+                  let highlightStyle = 'bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C]';
                   if (isRank1) {
-                    highlightStyle = 'bg-gradient-to-r from-red-500/15 via-rose-500/10 to-amber-500/10 border-red-500/50 shadow-sm ring-1 ring-red-500/40';
+                    highlightStyle = 'bg-gradient-to-r from-red-500/20 via-rose-500/15 to-amber-500/10 border-2 border-red-500 shadow-md ring-2 ring-red-500/40';
                   } else if (isRank2) {
-                    highlightStyle = 'bg-gradient-to-r from-slate-400/15 via-slate-300/10 to-slate-200/5 border-slate-400/50 shadow-sm ring-1 ring-slate-400/30';
+                    highlightStyle = 'bg-gradient-to-r from-slate-400/25 via-slate-300/20 to-slate-200/15 border-2 border-slate-400 dark:border-slate-300 shadow-md ring-2 ring-slate-400/40';
                   } else if (isRank3) {
-                    highlightStyle = 'bg-gradient-to-r from-amber-600/15 via-amber-500/10 to-yellow-600/5 border-amber-600/50 shadow-sm ring-1 ring-amber-600/30';
+                    highlightStyle = 'bg-gradient-to-r from-amber-600/20 via-amber-500/15 to-yellow-600/10 border-2 border-amber-600 shadow-md ring-2 ring-amber-600/40';
                   }
 
                   return (
                     <div
                       key={maker.handle}
-                      className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-all ${highlightStyle}`}
+                      className={`p-3 rounded-xl flex items-center justify-between gap-3 transition-all ${highlightStyle}`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className={`text-xs font-black w-5 text-center shrink-0 ${

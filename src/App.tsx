@@ -16,15 +16,22 @@ import { AiAdvisorModal } from './components/AiAdvisorModal';
 import { AuthModal } from './components/AuthModal';
 import { ToastContainer } from './components/Toast';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { OnboardingModal } from './components/OnboardingModal';
 
 const MainLayout: React.FC = () => {
-  const { activeView } = useApp();
+  const { activeView, setActiveView, isOnboardingOpen, setIsOnboardingOpen, userProfile } = useApp();
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [postForAi, setPostForAi] = useState<any>(null);
 
   const handleOpenAiModal = (post?: any) => {
     setPostForAi(post || null);
     setIsAiModalOpen(true);
+  };
+
+  const handleCloseOnboarding = () => {
+    const key = `getrefy_has_seen_onboarding_${userProfile?.handle || 'guest'}`;
+    localStorage.setItem(key, 'true');
+    setIsOnboardingOpen(false);
   };
 
   return (
@@ -55,6 +62,11 @@ const MainLayout: React.FC = () => {
         initialPost={postForAi}
       />
       <AuthModal />
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={handleCloseOnboarding}
+        onGoToCreatePost={() => setActiveView('submit')}
+      />
       <MobileBottomNav />
       <ToastContainer />
     </div>

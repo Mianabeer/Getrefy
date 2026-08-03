@@ -78,13 +78,13 @@ export const Header: React.FC<{ onOpenAiAdvisor?: () => void }> = ({ onOpenAiAdv
         </button>
 
 
-        {/* Submit Product CTA */}
+        {/* Create Post CTA */}
         <button
           onClick={() => setActiveView('submit')}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-xs font-bold hover:bg-[#2563EB]/90 transition-colors shadow-xs"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#2563EB] text-white text-xs font-bold hover:bg-[#2563EB]/90 transition-colors shadow-xs cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Submit App</span>
+          <span className="hidden sm:inline">Create Post</span>
         </button>
 
         {/* Auth Button or User Profile Avatar */}

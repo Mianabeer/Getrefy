@@ -344,7 +344,7 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
                         comment.isPrivate
                           ? 'bg-purple-500/5 dark:bg-purple-900/10 border-purple-500/20'
                           : isTopComment
-                          ? 'bg-amber-500/5 dark:bg-amber-500/10 border-amber-500/30 shadow-2xs'
+                          ? 'bg-[#2563EB]/5 dark:bg-[#2563EB]/10 border-[#2563EB]/30 shadow-2xs'
                           : 'bg-white dark:bg-[#0E0E10] border-[#E5E5E5] dark:border-[#2A2A2C]'
                       } space-y-2`}
                     >
@@ -372,7 +372,7 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
                             </span>
 
                             {authorStreak > 0 && (
-                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-md">
+                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-[#2563EB] bg-[#2563EB]/10 px-1.5 py-0.5 rounded-md">
                                 🔥 {authorStreak}d streak
                               </span>
                             )}
@@ -384,8 +384,8 @@ export const PostDetailModal: React.FC<{ onOpenAiAdvisorForPost?: (post: any) =>
 
                           <div className="flex items-center gap-2">
                             {isTopComment && (
-                              <span className="flex items-center gap-1 text-[9px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/15 px-2 py-0.5 rounded-md">
-                                <Award className="w-3 h-3 text-amber-500" />
+                              <span className="flex items-center gap-1 text-[9px] font-black text-[#2563EB] bg-[#2563EB]/15 px-2 py-0.5 rounded-md">
+                                <Award className="w-3 h-3 text-[#2563EB]" />
                                 <span>Top Comment</span>
                               </span>
                             )}

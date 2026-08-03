@@ -1,15 +1,15 @@
 import React from 'react';
 import { useApp, ActiveView } from '../context/AppContext';
-import { Home, PlusSquare, Trophy, User, Sparkles } from 'lucide-react';
+import { Home, PlusSquare, Trophy, User, Sparkles, Bell } from 'lucide-react';
 
 export const MobileBottomNav: React.FC = () => {
   const { activeView, setActiveView } = useApp();
 
   const navItems: { id: ActiveView; label: string; icon: any }[] = [
     { id: 'home', label: 'Home', icon: Home },
+    { id: 'notifications', label: 'Notifs', icon: Bell },
     { id: 'leaderboard', label: 'Top', icon: Trophy },
-    { id: 'submit', label: 'Submit', icon: PlusSquare },
-    { id: 'why', label: 'Why Us', icon: Sparkles },
+    { id: 'submit', label: 'Create', icon: PlusSquare },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 

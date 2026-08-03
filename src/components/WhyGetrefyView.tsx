@@ -1,7 +1,6 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { PandaMascot } from './PandaMascot';
-import { ShieldCheck, Award, Rocket, Globe, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Award, Rocket, Globe, CheckCircle2, ArrowRight, Lock, Check } from 'lucide-react';
 
 export const WhyGetrefyView: React.FC = () => {
   const { setActiveView } = useApp();
@@ -43,14 +42,12 @@ export const WhyGetrefyView: React.FC = () => {
       <div className="p-6 sm:p-10 rounded-3xl bg-gradient-to-br from-white via-white to-[#2563EB]/5 dark:from-[#0E0E10] dark:via-[#0E0E10] dark:to-[#2563EB]/10 border border-[#E5E5E5] dark:border-[#2A2A2C] text-center space-y-4 relative overflow-hidden shadow-sm">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#2563EB]/5 rounded-full blur-3xl pointer-events-none" />
 
-        <PandaMascot
-          mood="celebrate"
-          size="lg"
-          className="mx-auto"
-        />
+        <div className="w-16 h-16 rounded-2xl bg-[#2563EB]/10 border border-[#2563EB]/30 text-[#2563EB] flex items-center justify-center mx-auto shadow-sm">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-black tracking-wide">
-          <Sparkles className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-black tracking-wide">
+          <Lock className="w-3.5 h-3.5" />
           <span>OUR COMMITMENT TO BUILDERS</span>
         </div>
 
@@ -102,7 +99,7 @@ export const WhyGetrefyView: React.FC = () => {
       {/* Comparison Callout */}
       <div className="p-6 sm:p-8 rounded-2xl bg-[#F6F7F8] dark:bg-[#1A1A1B] border border-[#E5E5E5] dark:border-[#2A2A2C] space-y-4">
         <h3 className="text-base font-bold text-[#1A1A1B] dark:text-[#F5F5F5] flex items-center gap-2">
-          <span>🐼</span>
+          <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
           <span>How Getrefy Compares</span>
         </h3>
 
@@ -143,7 +140,7 @@ export const WhyGetrefyView: React.FC = () => {
             onClick={() => setActiveView('submit')}
             className="px-5 py-2.5 rounded-xl bg-white text-[#2563EB] font-bold text-xs hover:bg-white/90 transition-all flex items-center gap-2 cursor-pointer shadow-md"
           >
-            <span>Submit Your App (+3 pts)</span>
+            <span>Create Post (+3 pts)</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -158,3 +155,4 @@ export const WhyGetrefyView: React.FC = () => {
     </div>
   );
 };
+

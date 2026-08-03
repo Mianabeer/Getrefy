@@ -17,51 +17,29 @@ export type ActiveView = 'home' | 'submit' | 'leaderboard' | 'profile' | 'settin
 const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-1',
-    userId: 'user-1',
+    userId: '@alexchen_dev',
     type: 'post_upvote',
-    message: 'Alex Chen upvoted your product "Getrefy — Developer Product Launch Platform"',
+    message: 'Sarah Jenkins upvoted your product "Getrefy — Developer Product Launch Platform"',
     relatedPostId: 'post-1',
     isRead: false,
     createdAt: '10m ago',
     timestamp: Date.now() - 10 * 60 * 1000,
-    actorName: 'Alex Chen',
-    actorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'
+    actorName: 'Sarah Jenkins',
+    actorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80',
+    actorHandle: '@sarahcodes'
   },
   {
     id: 'notif-2',
-    userId: 'user-1',
+    userId: '@alexchen_dev',
     type: 'post_comment',
-    message: 'Sarah Jenkins commented on your product: "Awesome concept! The leaderboard feature is super encouraging."',
+    message: 'Elena Rostova commented on your product: "Awesome concept! The leaderboard feature is super encouraging."',
     relatedPostId: 'post-1',
     isRead: false,
     createdAt: '1h ago',
     timestamp: Date.now() - 60 * 60 * 1000,
-    actorName: 'Sarah Jenkins',
-    actorAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'notif-3',
-    userId: 'user-1',
-    type: 'comment_upvote',
-    message: 'David Kim upvoted your comment in Discussion (+1 Point earned)',
-    relatedPostId: 'post-2',
-    isRead: true,
-    createdAt: '3h ago',
-    timestamp: Date.now() - 3 * 3600 * 1000,
-    actorName: 'David Kim',
-    actorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80'
-  },
-  {
-    id: 'notif-4',
-    userId: 'user-1',
-    type: 'mention',
-    message: 'Elena Rostova mentioned you in a comment: "@maker check this out!"',
-    relatedPostId: 'post-3',
-    isRead: true,
-    createdAt: '1d ago',
-    timestamp: Date.now() - 24 * 3600 * 1000,
     actorName: 'Elena Rostova',
-    actorAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80'
+    actorAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80',
+    actorHandle: '@elena_design'
   }
 ];
 
@@ -91,6 +69,9 @@ interface AppContextType {
   unreadNotificationCount: number;
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (val: boolean) => void;
+  openOnboarding: () => void;
 }
 
 
@@ -216,7 +197,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
-  // Filter notifications relevant to the logged-in user
+  // Filter notifications relevant strictly to the logged-in user
   const userNotifications = notifications.filter(n => {
     // Exclude actions initiated by the logged in user
     if (
@@ -227,14 +208,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return false;
     }
 
-    const recipient = (n.userId || '').toLowerCase();
-    const handle = (userProfile?.handle || '').toLowerCase();
-    const name = (userProfile?.name || '').toLowerCase();
-    const uid = (user?.id || '').toLowerCase();
+    const recipient = (n.userId || '').trim().toLowerCase();
+    const handle = (userProfile?.handle || '').trim().toLowerCase();
+    const name = (userProfile?.name || '').trim().toLowerCase();
+    const uid = (user?.id || '').trim().toLowerCase();
+    const email = (user?.email || '').trim().toLowerCase();
 
-    if (!recipient) return true;
-    if (recipient === handle || recipient === name || (uid && recipient === uid)) return true;
-    if (recipient === 'maker-1' || recipient === 'maker-owner' || recipient === 'user-1' || recipient === '@maker') return true;
+    if (!recipient) return false;
+
+    if (
+      (handle && recipient === handle) ||
+      (name && recipient === name) ||
+      (uid && recipient === uid) ||
+      (email && recipient === email)
+    ) {
+      return true;
+    }
 
     return false;
   });
@@ -773,6 +762,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const key = `getrefy_has_seen_onboarding_${userProfile?.handle || 'guest'}`;
+    const hasSeen = localStorage.getItem(key);
+    if (!hasSeen) {
+      const timer = setTimeout(() => {
+        setIsOnboardingOpen(true);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [userProfile?.handle]);
+
+  const openOnboarding = () => {
+    setIsOnboardingOpen(true);
+  };
+
   const deletePost = (postId: string) => {
     setPosts(prev => prev.filter(p => p.id !== postId));
     if (selectedPost && selectedPost.id === postId) {
@@ -808,7 +814,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         notifications: userNotifications,
         unreadNotificationCount,
         markNotificationAsRead,
-        markAllNotificationsAsRead
+        markAllNotificationsAsRead,
+        isOnboardingOpen,
+        setIsOnboardingOpen,
+        openOnboarding
       }}
     >
       {children}

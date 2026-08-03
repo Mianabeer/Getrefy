@@ -114,13 +114,13 @@ export const AuthModal: React.FC = () => {
         </div>
 
         {!isSupabaseConfigured && (
-          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs space-y-1">
+          <div className="p-3 rounded-xl bg-[#2563EB]/10 border border-[#2563EB]/20 text-[#2563EB] text-xs space-y-1">
             <p className="font-bold flex items-center gap-1.5">
               <AlertCircle className="w-3.5 h-3.5 shrink-0" />
               <span>Supabase Keys Pending</span>
             </p>
-            <p className="text-[11px] leading-tight text-amber-700 dark:text-amber-300">
-              Fill in <code className="px-1 py-0.5 bg-amber-500/20 rounded font-mono text-[10px]">VITE_SUPABASE_URL</code> and <code className="px-1 py-0.5 bg-amber-500/20 rounded font-mono text-[10px]">VITE_SUPABASE_ANON_KEY</code> in environment settings.
+            <p className="text-[11px] leading-tight text-[#2563EB]/80">
+              Fill in <code className="px-1 py-0.5 bg-[#2563EB]/20 rounded font-mono text-[10px]">VITE_SUPABASE_URL</code> and <code className="px-1 py-0.5 bg-[#2563EB]/20 rounded font-mono text-[10px]">VITE_SUPABASE_ANON_KEY</code> in environment settings.
               You can click below to test with demo auth state!
             </p>
           </div>

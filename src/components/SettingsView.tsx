@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Moon, Sun, Bell, Shield, User, CheckCircle2, Upload, Lock, LogOut, KeyRound } from 'lucide-react';
+import { Settings, Moon, Sun, Bell, Shield, User, CheckCircle2, Upload, Lock, LogOut, KeyRound, HelpCircle } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
-  const { darkMode, setDarkMode, userProfile, setUserProfile, setActiveView, showToast } = useApp();
+  const { darkMode, setDarkMode, userProfile, setUserProfile, setActiveView, showToast, openOnboarding } = useApp();
   const { signOut, updateProfileInSupabase } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -343,6 +343,33 @@ export const SettingsView: React.FC = () => {
           <span>Save Preferences</span>
         </button>
       </form>
+
+      {/* Onboarding & Guide Box */}
+      <div className="p-6 rounded-2xl bg-[#2563EB]/5 border border-[#2563EB]/20 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-[#2563EB]/10 text-[#2563EB]">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[#1A1A1B] dark:text-[#F5F5F5]">
+                Getrefy Onboarding Walkthrough
+              </h3>
+              <p className="text-[11px] text-[#1A1A1B]/60 dark:text-[#F5F5F5]/60">
+                Re-play the 4-step panda guide on how to launch products, earn points, and climb tiers.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={openOnboarding}
+            className="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs transition-colors shadow-xs cursor-pointer shrink-0"
+          >
+            Launch Guide 🚀
+          </button>
+        </div>
+      </div>
 
       {/* Account Security Section */}
       <div className="p-6 rounded-2xl bg-white dark:bg-[#0E0E10] border border-[#E5E5E5] dark:border-[#2A2A2C] space-y-4">

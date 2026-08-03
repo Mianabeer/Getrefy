@@ -868,10 +868,13 @@ export const TOP_MAKERS = [
   { name: 'Elena Rostova', handle: '@elena_design', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80', launches: 4, upvotes: 410, points: 2750, badge: 'Design Lead ✨' },
   { name: 'Alex Chen', handle: '@alexchen_dev', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80', launches: 3, upvotes: 390, points: 1950, badge: 'Panda Founder 🐼' },
   { name: 'Lucas Wright', handle: '@lucaswright', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80', launches: 3, upvotes: 310, points: 1620, badge: 'Full-Stack Lead ⚡' },
+  { name: 'Maya Lin', handle: '@mayalin_tech', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80', launches: 3, upvotes: 295, points: 1510, badge: 'AI Engineer 🤖' },
   { name: 'Sarah Lin', handle: '@sarahcodes', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80', launches: 2, upvotes: 290, points: 1250, badge: 'Community Contributor 💬' },
   { name: 'Julian Vance', handle: '@julianvance', avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&auto=format&fit=crop&q=80', launches: 2, upvotes: 245, points: 940, badge: 'iOS Creator 📱' },
+  { name: 'David Kim', handle: '@dkim_builds', avatar: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=100&auto=format&fit=crop&q=80', launches: 2, upvotes: 210, points: 890, badge: 'DevOps Architect ⚙️' },
+  { name: 'Priya Sharma', handle: '@priyasharma', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80', launches: 2, upvotes: 195, points: 820, badge: 'SaaS Maker 🚀' },
   { name: 'Leo Vance', handle: '@leovance', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&auto=format&fit=crop&q=80', launches: 2, upvotes: 180, points: 620, badge: 'Game Dev 🎮' },
   { name: 'Marcus Vance', handle: '@marcusvance', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&auto=format&fit=crop&q=80', launches: 1, upvotes: 120, points: 410, badge: 'Rust Enthusiast ⚙️' },
-  { name: 'Devina Vance', handle: '@devinavance', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80', launches: 1, upvotes: 85, points: 210, badge: 'UI Designer 🎨' },
+  { name: 'Devina Vance', handle: '@devinavance', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop&q=80', launches: 1, upvotes: 85, points: 210, badge: 'UI Designer 🎨' },
   { name: 'Maya Brooks', handle: '@mayabrooks', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80', launches: 1, upvotes: 45, points: 150, badge: 'Junior Maker 🌱' }
 ];

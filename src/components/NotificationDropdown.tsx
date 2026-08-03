@@ -139,6 +139,20 @@ export const NotificationDropdown: React.FC<{
             ))
           )}
         </div>
+
+        {/* Footer Link to Full Page */}
+        <div className="p-2.5 border-t border-[#E5E5E5] dark:border-[#2A2A2C] bg-[#F6F7F8] dark:bg-[#1A1A1B] text-center">
+          <button
+            onClick={() => {
+              setActiveView('notifications');
+              onClose();
+            }}
+            className="text-xs font-extrabold text-[#2563EB] hover:underline w-full py-1 cursor-pointer flex items-center justify-center gap-1"
+          >
+            <span>Open Dedicated Notifications Page</span>
+            <span>→</span>
+          </button>
+        </div>
       </div>
     </>
   );
